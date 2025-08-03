@@ -16,6 +16,7 @@ using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Immersal.XR;
 using Immersal.REST;
@@ -202,15 +203,17 @@ namespace Immersal
 		        instance = this;
 	        }
 	        
-	        if (instance != this)
-	        {
-		        ImmersalLogger.LogError("There must be only one ImmersalSDK object in a scene.");
-		        UnityEngine.Object.DestroyImmediate(this);
-		        return;
-	        }
-	        
-	        if (m_InitializeAutomatically)
-				_ = Initialize();
+                if (instance != this)
+                {
+                        ImmersalLogger.LogError("There must be only one ImmersalSDK object in a scene.");
+                        UnityEngine.Object.DestroyImmediate(this);
+                        return;
+                }
+
+                AutoDetectPlatform();
+
+                if (m_InitializeAutomatically)
+                                _ = Initialize();
         }
         
         public async Task Initialize()
@@ -379,7 +382,59 @@ namespace Immersal
         
         private void SetFrameRate()
         {
-	        Application.targetFrameRate = targetFrameRate;
+                Application.targetFrameRate = targetFrameRate;
+        }
+
+        private void AutoDetectPlatform()
+        {
+                try
+                {
+                        if (HasNRSession() || IsOpenXRActive())
+                        {
+                                XrealSupport support = GetComponentInChildren<XrealSupport>(true);
+                                if (support != null)
+                                {
+                                        m_Platform = support;
+                                }
+                        }
+                }
+                catch (Exception e)
+                {
+                        ImmersalLogger.Log($"Platform auto-detection failed: {e.Message}");
+                }
+        }
+
+        private bool HasNRSession()
+        {
+                string[] typeNames = { "NRKernal.NRSession", "NRKernal.NRSessionBehaviour", "NRKernal.NRSessionManager" };
+                foreach (string name in typeNames)
+                {
+                        Type t = Type.GetType(name) ?? Type.GetType(name + ", NRSDK");
+                        if (t != null && FindObjectOfType(t) != null)
+                                return true;
+                }
+                return false;
+        }
+
+        private bool IsOpenXRActive()
+        {
+                Type xrGeneralSettingsType = Type.GetType("UnityEngine.XR.Management.XRGeneralSettings, Unity.XR.Management");
+                if (xrGeneralSettingsType == null)
+                        return false;
+
+                object instance = xrGeneralSettingsType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static)?.GetValue(null, null);
+                if (instance == null)
+                        return false;
+
+                object manager = xrGeneralSettingsType.GetProperty("Manager", BindingFlags.Public | BindingFlags.Instance)?.GetValue(instance, null);
+                if (manager == null)
+                        return false;
+
+                object activeLoader = manager.GetType().GetProperty("activeLoader", BindingFlags.Public | BindingFlags.Instance)?.GetValue(manager, null);
+                if (activeLoader == null)
+                        return false;
+
+                return activeLoader.GetType().Name.Contains("OpenXR");
         }
         
         // Convenience method
