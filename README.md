@@ -6,8 +6,7 @@ This is the core package for the Immersal Unity SDK.
 - Unity **2022.3 LTS**
 - AR Foundation **5.1+**
 - OpenXR **1.8.2+**
-- XREAL NRSDK **1.7.0+**
-- XREAL **Air 2 Ultra** (tested via NRSDK)
+- XREAL **Air 2 Ultra** (via AR Foundation)
 
 > Note: Earlier versions of Unity and AR Foundation may still work with minimal script changes.
 
@@ -23,14 +22,8 @@ https://github.com/immersal/imdk-unity.git
 3. Click the **+** button (Add).
 4. Choose **“Add package from git URL…”**.
 5. Paste the URL above and click **Add**.
-6. Import the **XREAL NRSDK** Unity package (either from Package Manager or the official XREAL distribution).
-7. Go to **Edit → Project Settings → XR Plug-in Management** and enable **XrealSupport** (for the target platform).
-8. (If needed) Add scripting define symbol **`IMMERSAL_XREAL`** for the target platform under  
+6. (Optional) Add scripting define symbol **`IMMERSAL_XREAL`** for the target platform under
 **Edit → Project Settings → Player → Other Settings → Scripting Define Symbols**.
-
-### Dependency note
-This package depends on the official **XREAL NRSDK**. Unity’s Package Manager can fetch `com.xreal.nrsdk` if your project has access to the XREAL registry.  
-If the registry is not configured, install the NRSDK package manually from the official XREAL distribution.
 
 ---
 
@@ -42,9 +35,9 @@ Samples~/Core/Scenes/CustomLocalizationSample.unity
 ---
 
 ## Basic usage
-1. Add the **`XrealSupport`** component (from `Immersal.XR`) to a scene GameObject.
-2. Initialize/configure the platform at runtime; RGB camera frames and pose will be provided through the Immersal platform interfaces when NRSDK is present.
-3. On platforms without NRSDK or when `IMMERSAL_XREAL` is not defined, a safe stub implementation is used.
+1. Add the **`ARFBridge`** component (from `Immersal.XR`) to a scene GameObject.
+2. The bridge uses AR Foundation to forward CPU camera images, intrinsics, and pose to `ImmersalSDK.Session`.
+3. When `IMMERSAL_XREAL` is not defined, the bridge compiles to a safe stub so the project builds without the XREAL plugin.
 
 ---
 
