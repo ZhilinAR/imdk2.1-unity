@@ -167,7 +167,7 @@ GameObject:
   - component: {fileID: 5728853109968807875}
   - component: {fileID: 6469108069241648846}
   m_Layer: 0
-  m_Name: ARFoundationSupport
+  m_Name: XrealSupport
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -197,13 +197,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 4483478919481266077}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff1599bedf7cb4f2bb03770be4930ce8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_MaxConfigurationAttempts: 10
-  m_MsBetweenConfigurationAttempts: 100
-  m_AndroidResolution: 2
-  m_iOSResolution: 0
+  m_Script: {fileID: 11500000, guid: 60cbf3ecadca44bfa9b61ac2a53e35d0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &5513217393547005349
 GameObject:
   m_ObjectHideFlags: 0
