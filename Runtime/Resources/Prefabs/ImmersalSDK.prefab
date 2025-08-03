@@ -52,7 +52,7 @@ MonoBehaviour:
   defaultServer: 0
   developerToken: 
   m_Session: {fileID: 4858077625584781203}
-  m_Platform: {fileID: 6469108069241648846}
+  m_Platform: {fileID: 0}
   m_Localizer: {fileID: 4174534150879381888}
   m_SceneUpdater: {fileID: 2545414792828475238}
   m_TrackingAnalyzer: {fileID: 6509155160601367522}
@@ -167,7 +167,7 @@ GameObject:
   - component: {fileID: 5728853109968807875}
   - component: {fileID: 6469108069241648846}
   m_Layer: 0
-  m_Name: XrealSupport
+  m_Name: ARFBridge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -197,7 +197,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4483478919481266077}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60cbf3ecadca44bfa9b61ac2a53e35d0, type: 3}
+  m_Script: {fileID: 11500000, guid: d882ab1dc9994f178fc345a5657fbb82, type: 3}
   m_Name:
   m_EditorClassIdentifier:
 --- !u!1 &5513217393547005349
