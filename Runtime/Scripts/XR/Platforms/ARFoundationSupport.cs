@@ -12,11 +12,13 @@ Contact sales@immersal.com for licensing requests.
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.IO;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using UnityEngine.XR.Management;
 
 namespace Immersal.XR
 {
@@ -75,6 +77,9 @@ namespace Immersal.XR
 
         [SerializeField]
         private CameraDataFormat m_CameraDataFormat = CameraDataFormat.SingleChannel;
+
+        [SerializeField, Tooltip("Enable file logging to ImmersalXREAL.log")]
+        private bool m_LogToFile = false;
         
         public CameraResolution androidResolution
         {
@@ -99,6 +104,9 @@ namespace Immersal.XR
         private Task<(bool, CameraData)> m_CurrentCameraDataTask;
         private bool m_isTracking = false;
 
+        private bool m_CpuImageLogged = false;
+        private bool m_IntrinsicsLogged = false;
+
         public async Task<IPlatformConfigureResult> ConfigurePlatform()
         {
             PlatformConfiguration config = new PlatformConfiguration
@@ -110,6 +118,9 @@ namespace Immersal.XR
 
         public async Task<IPlatformConfigureResult> ConfigurePlatform(IPlatformConfiguration configuration)
         {
+            ImmersalLogger.Log("XREAL AR Foundation session starting");
+            string provider = XRGeneralSettings.Instance?.Manager?.activeLoader?.name ?? "Unknown";
+            ImmersalLogger.Log($"Active XR provider: {provider}");
             ImmersalLogger.Log("Configuring ARF Platform");
             
 #if UNITY_EDITOR
@@ -119,7 +130,18 @@ namespace Immersal.XR
 
             if (!m_CameraManager)
             {
+                ImmersalLogger.LogError("ARCameraManager not found");
                 throw new ComponentTaskCriticalException("Could not find ARCameraManager.");
+            }
+            else
+            {
+                ImmersalLogger.Log("ARCameraManager detected");
+                var desc = m_CameraManager.descriptor;
+                if (desc != null)
+                {
+                    ImmersalLogger.Log($"CPU image supported: {desc.supportsCameraImage}");
+                    ImmersalLogger.Log($"Intrinsics supported: {desc.supportsCameraIntrinsics}");
+                }
             }
             
             m_ARSession = UnityEngine.Object.FindObjectOfType<ARSession>();
@@ -142,8 +164,14 @@ namespace Immersal.XR
                 await Task.Delay(m_MsBetweenConfigurationAttempts);
             }
 
+            if (m_CameraManager != null && m_CameraManager.currentConfiguration.HasValue)
+            {
+                var cfg = m_CameraManager.currentConfiguration.Value;
+                ImmersalLogger.Log($"Frame size: {cfg.width}x{cfg.height}, framerate: {cfg.framerate}");
+            }
+
             IPlatformConfigureResult r = new SimplePlatformConfigureResult
-            { 
+            {
                 Success = m_ConfigDone
             };
             
@@ -277,6 +305,12 @@ namespace Immersal.XR
                 return image;
             });
             XRCpuImage image = await t;
+
+            if (!m_CpuImageLogged)
+            {
+                ImmersalLogger.Log($"CPU image acquired: {imageAcquired}");
+                m_CpuImageLogged = true;
+            }
             
             if (!imageAcquired)
             {
@@ -306,6 +340,12 @@ namespace Immersal.XR
             XRCameraIntrinsics intr = default;
 
             bool success = m_CameraManager != null && m_CameraManager.TryGetIntrinsics(out intr);
+
+            if (!m_IntrinsicsLogged)
+            {
+                ImmersalLogger.Log($"Intrinsics acquired: {success}");
+                m_IntrinsicsLogged = true;
+            }
 
             if (success)
             {
@@ -347,17 +387,19 @@ namespace Immersal.XR
         private void OnEnable()
         {
 #if !UNITY_EDITOR
-			m_isTracking = ARSession.state == ARSessionState.SessionTracking;
-			ARSession.stateChanged += ARSessionStateChanged;
+                        m_isTracking = ARSession.state == ARSessionState.SessionTracking;
+                        ARSession.stateChanged += ARSessionStateChanged;
 #endif
+            ImmersalLogger.EnableFileLogging(m_LogToFile, Path.Combine(Application.persistentDataPath, "ImmersalXREAL.log"));
         }
         
         private void OnDisable()
         {
 #if !UNITY_EDITOR
-			ARSession.stateChanged -= ARSessionStateChanged;
+                        ARSession.stateChanged -= ARSessionStateChanged;
 #endif
             m_isTracking = false;
+            ImmersalLogger.EnableFileLogging(false, string.Empty);
         }
 
         private void ARSessionStateChanged(ARSessionStateChangedEventArgs args)
@@ -367,10 +409,13 @@ namespace Immersal.XR
         
         public async Task StopAndCleanUp()
         {
-	         // there is no cancellation token for the update procedure here, just wait
-             await m_CurrentCameraDataTask;
-             m_ConfigDone = false;
-             m_isTracking = false;
+            ImmersalLogger.Log("XREAL AR Foundation session stopped");
+            // there is no cancellation token for the update procedure here, just wait
+            await m_CurrentCameraDataTask;
+            m_ConfigDone = false;
+            m_isTracking = false;
+            m_CpuImageLogged = false;
+            m_IntrinsicsLogged = false;
         }
     }
     
