@@ -1,6 +1,8 @@
 # Immersal SDK Core
 This is the core package for the Immersal Unity SDK.
 
+For build and test steps, see the [XREAL Build Checklist](XREAL_BUILD_CHECKLIST.md).
+
 ## Compatibility
 - Immersal SDK **2.1**
 - Unity **2022.3 LTS**
