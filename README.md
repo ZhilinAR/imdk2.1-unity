@@ -1,48 +1,92 @@
 # Immersal SDK Core
-This is the core package for the Immersal Unity SDK.
+Это ядро Unity-SDK для Immersal.
 
-## Compatibility
+## Совместимость
 - Immersal SDK **2.1**
 - Unity **2022.3 LTS**
 - AR Foundation **5.1+**
 - OpenXR **1.8.2+**
-- XREAL **Air 2 Ultra** (via AR Foundation)
+- **XREAL XR Plugin 3.x**
+- Устройства **XREAL Air 2 Ultra** / Beam Pro
 
-> Note: Earlier versions of Unity and AR Foundation may still work with minimal script changes.
+> Ранние версии Unity и AR Foundation могут работать при минимальных правках скриптов.
 
 ---
 
-## Installation
+## Установка
 
-To install the latest available version:
+1. **Удалите** прежний пакет Immersal SDK через **Window → Package Manager** (если он уже добавлен как `com.immersal.core`).
+2. Добавьте этот форк как Git-пакет:  
+   **Window → Package Manager → + → Add package from git URL…**  
+https://github.com/ZhilinAR/imdk2.1-unity.git
 
-1. Copy the URL to this repository:
-https://github.com/immersal/imdk-unity.git
-2. Open **Unity → Window → Package Manager**.
-3. Click the **+** button (Add).
-4. Choose **“Add package from git URL…”**.
-5. Paste the URL above and click **Add**.
-6. (Optional) Add scripting define symbol **`IMMERSAL_XREAL`** for the target platform under
+3. Установите **XREAL XR Plugin** (`com.xreal.xr`):
+- Скачайте tar-архив плагина из дистрибутива XREAL (`com.xreal.xr.tar.gz`).
+- В **Package Manager** выберите **Add package from tarball…** и укажите файл.
+4. Откройте **Edit → Project Settings → XR Plug-in Management**.
+- Для **Android** включите **XREAL**.
+- **Отключите ARCore** (на Beam Pro ARCore не поддерживается).
+5. (Опционально) добавьте символ компиляции **`IMMERSAL_XREAL`**:  
 **Edit → Project Settings → Player → Other Settings → Scripting Define Symbols**.
 
+### Зависимости
+Пакет ожидает установленный **XREAL XR Plugin** (`com.xreal.xr`). Он поставляется XREAL в виде tar-архива и не доступен в Unity Registry.
+
 ---
 
-## Samples
-For a sample scene demonstrating localization on XREAL glasses, open:
+## Требования к Android-сборке
+- **Min API Level**: 26+
+- **Scripting Backend**: **IL2CPP**
+- **Target Architecture**: **ARM64**
+- **Graphics API**: **OpenGLES3**
+- Разрешения в манифесте: **Camera**, **Internet** (для облачной локализации Immersal), при необходимости — **Write External Storage** (лог/кеш).
+
+---
+
+## Минимальная настройка сцены
+Добавьте в сцену:
+- **XR Origin (XR Rig)**  
+- **AR Session**
+- Объект **ImmersalSDK** (компонент)
+- Объект **Localizer** (компонент) и нужные **Localization Method** (например, *DeviceLocalization* и/или *ServerLocalization*)
+- **XrealSupport** (мост платформы для XREAL) — см. ниже  
+*(Если работаете через обычный AR Foundation на поддерживаемом устройстве, можно использовать **ARFBridge**.)*
+
+---
+
+## Образцы (Samples)
+Сцена, показывающая пользовательскую локализацию (в т.ч. для XREAL):
 
 Samples~/Core/Scenes/CustomLocalizationSample.unity
 
----
-
-## Basic usage
-1. Add the **`ARFBridge`** component (from `Immersal.XR`) to a scene GameObject.
-2. The bridge uses AR Foundation to forward CPU camera images, intrinsics, and pose to `ImmersalSDK.Session`.
-3. When `IMMERSAL_XREAL` is not defined, the bridge compiles to a safe stub so the project builds without the XREAL plugin.
 
 ---
 
-## License
-© 2024 Immersal – Part of Hexagon. All rights reserved.
+## Базовое использование
 
-The Immersal SDK cannot be copied, distributed, or made available to third-parties for commercial purposes without written permission of Immersal Ltd.  
-For licensing requests, please contact **sales@immersal.com**.
+### Вариант с XREAL (Beam Pro, Air 2 Ultra)
+1. Добавьте компонент **`XrealSupport`** (пространство имён `Immersal.XR`) на GameObject в сцене.
+2. Убедитесь, что в **XR Plug-in Management** включён **XREAL**, а **ARCore** — выключен.
+3. На объекте **ImmersalSDK** укажите **Developer Token**, выберите методы локализации и добавьте ваши **XR Map** (через *embed* либо облако).
+4. При запуске `XrealSupport` будет поставлять позу/кадры RGB и пр. данные в `ImmersalSDK.Session`.
+
+> Если XREAL плагин не установлен или символ `IMMERSAL_XREAL` отсутствует, используется безопасная заглушка — проект соберётся, но XREAL-специфическая функциональность будет отключена.
+
+### Вариант через AR Foundation
+1. Добавьте компонент **`ARFBridge`** (из `Immersal.XR`) в сцену.
+2. Мост передаёт CPU-кадры камеры, intrinsics и позу из AR Foundation в `ImmersalSDK.Session`.
+3. Подходит для устройств с поддержкой ARCore/ARKit.
+
+---
+
+## Подсказки по Beam Pro
+- Beam Pro официально не поддерживает ARCore, поэтому **ARCore следует отключить**.  
+- В сцене используйте **XrealSupport**; для локализации Immersal применяйте **DeviceLocalization** (локально) и/или **ServerLocalization** (облако).
+
+---
+
+## Лицензия
+© 2024 Immersal – часть Hexagon. Все права защищены.  
+Immersal SDK не может копироваться, распространяться или предоставляться третьим лицам в коммерческих целях без письменного разрешения Immersal Ltd.  
+По вопросам лицензирования: **sales@immersal.com**.
+
