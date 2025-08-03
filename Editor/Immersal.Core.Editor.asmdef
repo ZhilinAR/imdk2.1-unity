@@ -21,6 +21,11 @@
             "name": "com.magicleap.unitysdk",
             "expression": "1.7.0",
             "define": "IMMERSAL_MAGIC_LEAP_ENABLED"
+        },
+        {
+            "name": "com.xreal.xr",
+            "expression": "3.0.0-pre.1",
+            "define": "IMMERSAL_XREAL"
         }
     ],
     "noEngineReferences": false
