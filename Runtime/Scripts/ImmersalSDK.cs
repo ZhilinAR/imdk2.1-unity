@@ -389,12 +389,28 @@ namespace Immersal
         {
                 try
                 {
-                        if (HasNRSession() || IsOpenXRActive())
+                        if (m_Platform != null)
+                                return;
+
+                        Type arSessionType = Type.GetType("UnityEngine.XR.ARFoundation.ARSession, Unity.XR.ARFoundation");
+                        if (arSessionType != null && FindObjectOfType(arSessionType) != null)
                         {
-                                XrealSupport support = GetComponentInChildren<XrealSupport>(true);
+                                ARFoundationSupport support = GetComponentInChildren<ARFoundationSupport>(true);
                                 if (support != null)
                                 {
                                         m_Platform = support;
+                                        return;
+                                }
+                        }
+
+                        if (IsOpenXRActive())
+                        {
+                                IPlatformSupport support = GetComponentsInChildren<MonoBehaviour>(true)
+                                        .OfType<IPlatformSupport>()
+                                        .FirstOrDefault();
+                                if (support != null)
+                                {
+                                        m_Platform = support as Object;
                                 }
                         }
                 }
@@ -402,18 +418,6 @@ namespace Immersal
                 {
                         ImmersalLogger.Log($"Platform auto-detection failed: {e.Message}");
                 }
-        }
-
-        private bool HasNRSession()
-        {
-                string[] typeNames = { "NRKernal.NRSession", "NRKernal.NRSessionBehaviour", "NRKernal.NRSessionManager" };
-                foreach (string name in typeNames)
-                {
-                        Type t = Type.GetType(name) ?? Type.GetType(name + ", NRSDK");
-                        if (t != null && FindObjectOfType(t) != null)
-                                return true;
-                }
-                return false;
         }
 
         private bool IsOpenXRActive()
