@@ -66,10 +66,13 @@ namespace Immersal.XR
             if (map.LocalizationMethod.IsNullOrDead())
             {
                 ImmersalLogger.LogWarning($"Map {map.name} has invalid localization method, resetting to DeviceLocalization.");
-                if (!TrySetLocalizationMethod(map, typeof(DeviceLocalization)))
+                if (ImmersalSDK.Instance == null || ImmersalSDK.Instance.Localizer == null)
                 {
-                    ImmersalLogger.LogError($"Failed. Uninitializing map {map.name}");
-                    map.Uninitialize();
+                    EditorApplication.delayCall += () => TrySetLocalizationMethod(map, typeof(DeviceLocalization));
+                }
+                else
+                {
+                    TrySetLocalizationMethod(map, typeof(DeviceLocalization));
                 }
             }
             
@@ -352,6 +355,12 @@ namespace Immersal.XR
                 ImmersalLogger.LogError("Invalid localization method assignment.");
                 MapManager.RefreshLocalizationMethods();
                 RefreshAvailableLocalizationMethods();
+                return false;
+            }
+
+            if (ImmersalSDK.Instance == null || ImmersalSDK.Instance.Localizer == null)
+            {
+                EditorApplication.delayCall += () => TrySetLocalizationMethod(map, localizationMethod);
                 return false;
             }
             
