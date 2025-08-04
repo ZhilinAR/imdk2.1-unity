@@ -17,11 +17,15 @@ using System.Text;
 using System.Xml;
 using UnityEditor;
 using UnityEditor.Build;
+#if HAVE_XR_MANAGEMENT
 using UnityEditor.XR.Management;
+#endif
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+#if HAVE_XR_MANAGEMENT
 using UnityEngine.XR.Management;
+#endif
 
 namespace Immersal
 {
@@ -475,6 +479,7 @@ namespace Immersal
                 Fix = () => { PlayerSettings.Android.targetArchitectures |= AndroidArchitecture.ARM64; },
                 Error = true,
             },
+#if HAVE_XR_MANAGEMENT
             // ARKit loader
             new ImmersalProjectIssue()
             {
@@ -501,6 +506,7 @@ namespace Immersal
                 Error = true,
                 RequiresManualFix = true
             },
+#endif
             new ImmersalProjectIssue()
             {
                 Message = () => "Universal Render Pipeline is recommended",
@@ -529,14 +535,18 @@ namespace Immersal
         
         private static bool IsPluginLoaderEnabled(string loaderName)
         {
+#if HAVE_XR_MANAGEMENT
             XRGeneralSettings generalSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(ImmersalProjectValidation.ActiveBuildTargetGroup);
             if (generalSettings == null)
                 return false;
-                
+
             XRManagerSettings managerSettings = generalSettings.AssignedSettings;
 
             string loaderNameNoWhitespace = loaderName.Replace(" ", "");
             return managerSettings != null && managerSettings.activeLoaders.Any(loader => (loader.name == loaderName || loader.name == loaderNameNoWhitespace));
+#else
+            return false;
+#endif
         }
         
         private static void SetupRenderPipeline()
