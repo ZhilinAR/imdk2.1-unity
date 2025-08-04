@@ -4,6 +4,8 @@
         "Unity.XR.ARFoundation",
         "Unity.XR.ARSubsystems",
         "Unity.XR.CoreUtils",
+        "Unity.XR.Management",
+        "Unity.XR.OpenXR",
         "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
@@ -18,6 +20,16 @@
             "name": "com.xreal.xr",
             "expression": "3.0.0-pre.1",
             "define": "IMMERSAL_XREAL"
+        },
+        {
+            "name": "com.unity.xr.management",
+            "expression": "4.0.0",
+            "define": "HAVE_XR_MANAGEMENT"
+        },
+        {
+            "name": "com.unity.xr.arfoundation",
+            "expression": "5.0.0",
+            "define": "HAVE_ARFOUNDATION"
         }
     ],
     "noEngineReferences": false
