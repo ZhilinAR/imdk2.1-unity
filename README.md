@@ -16,21 +16,22 @@
 ## Установка
 
 1. **Удалите** прежний пакет Immersal SDK через **Window → Package Manager** (если он уже добавлен как `com.immersal.core`).
-2. Добавьте этот форк как Git-пакет:  
-   **Window → Package Manager → + → Add package from git URL…**  
+2. Добавьте этот форк как Git-пакет:
+   **Window → Package Manager → + → Add package from git URL…**
 https://github.com/ZhilinAR/imdk2.1-unity.git
 
-3. Установите **XREAL XR Plugin** (`com.xreal.xr`):
-- Скачайте tar-архив плагина из дистрибутива XREAL (`com.xreal.xr.tar.gz`).
-- В **Package Manager** выберите **Add package from tarball…** и укажите файл.
-4. Откройте **Edit → Project Settings → XR Plug-in Management**.
-- Для **Android** включите **XREAL**.
-- **Отключите ARCore** (на Beam Pro ARCore не поддерживается).
-5. (Опционально) добавьте символ компиляции **`IMMERSAL_XREAL`**:  
+3. В **Package Manager** выберите **Immersal SDK → ⋯ → Embed**, чтобы избежать предупреждений о неизменяемом пакете.
+4. Установите **XREAL XR Plugin** (`com.xreal.xr`) из локального архива:
+   - Скачайте `com.xreal.xr.tar.gz` из дистрибутива XREAL.
+   - В **Package Manager** выберите **Add package from tarball…** и укажите файл.
+5. Установите **XR Plugin Management 4.5.1**, затем откройте **Edit → Project Settings → XR Plug-in Management**.
+   - Для **Android** включите **XREAL** (OpenXR).
+   - **Отключите ARCore** (на Beam Pro ARCore не поддерживается).
+6. (Опционально) добавьте символ компиляции **`IMMERSAL_XREAL`**:
 **Edit → Project Settings → Player → Other Settings → Scripting Define Symbols**.
 
 ### Зависимости
-Пакет ожидает установленный **XREAL XR Plugin** (`com.xreal.xr`). Он поставляется XREAL в виде tar-архива и не доступен в Unity Registry.
+Пакет ожидает установленный **XREAL XR Plugin** (`com.xreal.xr`). Он поставляется XREAL в виде локального `tar.gz` и не публикуется в реестре Unity Registry.
 
 ---
 
@@ -80,8 +81,12 @@ Samples~/Core/Scenes/CustomLocalizationSample.unity
 ---
 
 ## Подсказки по Beam Pro
-- Beam Pro официально не поддерживает ARCore, поэтому **ARCore следует отключить**.  
+- Beam Pro официально не поддерживает ARCore, поэтому **ARCore следует отключить**.
 - В сцене используйте **XrealSupport**; для локализации Immersal применяйте **DeviceLocalization** (локально) и/или **ServerLocalization** (облако).
+- Для просмотра логов:
+  ```bash
+  adb -s <BEAM_IP:5555> logcat -v time | grep -E "Immersal|XREAL|Unity"
+  ```
 
 ---
 
