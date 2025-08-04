@@ -18,7 +18,9 @@ using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+#if HAVE_XR_MANAGEMENT
 using UnityEngine.XR.Management;
+#endif
 
 namespace Immersal.XR
 {
@@ -119,8 +121,12 @@ namespace Immersal.XR
         public async Task<IPlatformConfigureResult> ConfigurePlatform(IPlatformConfiguration configuration)
         {
             ImmersalLogger.Log("XREAL AR Foundation session starting");
+#if HAVE_XR_MANAGEMENT
             string provider = XRGeneralSettings.Instance?.Manager?.activeLoader?.name ?? "Unknown";
             ImmersalLogger.Log($"Active XR provider: {provider}");
+#else
+            ImmersalLogger.Log("XR Management not available");
+#endif
             ImmersalLogger.Log("Configuring ARF Platform");
             
 #if UNITY_EDITOR
